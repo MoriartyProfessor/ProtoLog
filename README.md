@@ -1,5 +1,5 @@
 # ProtoLog
-**Description** will be here
+**ProtoLog** is a simple and flexible logging framework for C++. 
 
 ## Features
 
