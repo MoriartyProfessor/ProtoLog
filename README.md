@@ -50,17 +50,17 @@ int main()
 And its output:
 
 ```
-[19:04:2022 11:09:36 AM] [    Info] [18455] [void log_messages()@33] Macro version
-[19:04:2022 11:09:36 AM] [    Info] [18455] [void log_messages()@35] This is Protolog
-[19:04:2022 11:09:36 AM] [   Debug] [18455] [void log_messages()@37] There is a bug under the table
-[19:04:2022 11:09:36 AM] [   Trace] [18455] [void log_messages()@39] The exception might be thrown
-[19:04:2022 11:09:36 AM] [ Warning] [18455] [void log_messages()@41] That line is error-prone
-[19:04:2022 11:09:36 AM] [   Error] [18455] [void log_messages()@43] Something is wrong
-[19:04:2022 11:09:36 AM] [   Fatal] [18455] [void log_messages()@45] Last message before catastrophe
-[19:04:2022 11:09:36 AM] [   Fatal] [18455] [void log_messages()@47] Message: this is 1st parametrized message
-[19:04:2022 11:09:36 AM] [   Trace] [18455] [void log_messages()@49] Hello World!
-[19:04:2022 11:09:36 AM] [   Trace] [18455] [void log_messages()@49] Stream log and parametrizing combined
-[19:04:2022 11:09:36 AM] [    Info] [18455] [void log_messages()@51] Logger Macro parametrized
+[19-04-2022 11:09:36 AM] [    Info] [18455] [void log_messages()@33] Macro version
+[19-04-2022 11:09:36 AM] [    Info] [18455] [void log_messages()@35] This is Protolog
+[19-04-2022 11:09:36 AM] [   Debug] [18455] [void log_messages()@37] There is a bug under the table
+[19-04-2022 11:09:36 AM] [   Trace] [18455] [void log_messages()@39] The exception might be thrown
+[19-04-2022 11:09:36 AM] [ Warning] [18455] [void log_messages()@41] That line is error-prone
+[19-04-2022 11:09:36 AM] [   Error] [18455] [void log_messages()@43] Something is wrong
+[19-04-2022 11:09:36 AM] [   Fatal] [18455] [void log_messages()@45] Last message before catastrophe
+[19-04-2022 11:09:36 AM] [   Fatal] [18455] [void log_messages()@47] Message: this is 1st parametrized message
+[19-04-2022 11:09:36 AM] [   Trace] [18455] [void log_messages()@49] Hello World!
+[19-04-2022 11:09:36 AM] [   Trace] [18455] [void log_messages()@49] Stream log and parametrizing combined
+[19-04-2022 11:09:36 AM] [    Info] [18455] [void log_messages()@51] Logger Macro parametrized
 ```
 
  
