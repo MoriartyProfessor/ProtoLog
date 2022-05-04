@@ -2,7 +2,6 @@
 #define PROTOLOG_UTILITY_HPP
 
 #include <string>
-#include <mutex>
 #include <fstream>
 #include <filesystem>
 
@@ -21,25 +20,25 @@
 namespace Protolog
 {
 	const std::string RESET = "\033[0m";
-	const std::string BLACK = "\033[30m";      /* Black */
-	const std::string RED = "\033[31m";      /* Red */
-	const std::string GREEN = "\033[32m";      /* Green */
-	const std::string YELLOW = "\033[33m";      /* Yellow */
-	const std::string BLUE = "\033[34m";      /* Blue */
-	const std::string MAGENTA = "\033[35m";      /* Magenta */
-	const std::string CYAN = "\033[36m";      /* Cyan */
-	const std::string WHITE = "\033[37m";      /* White */
+	const std::string BLACK = "\033[30m";
+	const std::string RED = "\033[31m";
+	const std::string GREEN = "\033[32m";
+	const std::string YELLOW = "\033[33m";
+	const std::string BLUE = "\033[34m";
+	const std::string MAGENTA = "\033[35m";
+	const std::string CYAN = "\033[36m";
+	const std::string WHITE = "\033[37m";
 	const std::string CHARTREUSE = "\033[38;5;154m";
 	const std::string PURPLE = "\033[38;5;201m";
 	const std::string VELVET = "\033[38;5;126m";
-	const std::string BOLDBLACK = "\033[1m\033[30m";      /* Bold Black */
-	const std::string BOLDRED = "\033[1m\033[31m";      /* Bold Red */
-	const std::string BOLDGREEN = "\033[1m\033[32m";      /* Bold Green */
-	const std::string BOLDYELLOW = "\033[1m\033[33m";      /* Bold Yellow */
-	const std::string BOLDBLUE = "\033[1m\033[34m";      /* Bold Blue */
-	const std::string BOLDMAGENTA = "\033[1m\033[35m";      /* Bold Magenta */
-	const std::string BOLDCYAN = "\033[1m\033[36m";      /* Bold Cyan */
-	const std::string BOLDWHITE = "\033[1m\033[37m";      /* Bold White */
+	const std::string BOLDBLACK = "\033[1m\033[30m";
+	const std::string BOLDRED = "\033[1m\033[31m";
+	const std::string BOLDGREEN = "\033[1m\033[32m";
+	const std::string BOLDYELLOW = "\033[1m\033[33m";
+	const std::string BOLDBLUE = "\033[1m\033[34m";
+	const std::string BOLDMAGENTA = "\033[1m\033[35m";
+	const std::string BOLDCYAN = "\033[1m\033[36m";
+	const std::string BOLDWHITE = "\033[1m\033[37m";
 
 	pid_t get_process_id()
 	{
@@ -102,9 +101,7 @@ namespace Protolog
             if(filename == e.path().filename())
             {
                 std::filesystem::file_status stat = std::filesystem::status(e.path());
-                if(std::filesystem::is_directory(stat))
-                    return true;
-                return false;
+                return std::filesystem::is_directory(stat);
             }
         }
         return false;
@@ -117,7 +114,7 @@ namespace Protolog
 	    size_t size = static_cast<size_t>(size_s);
 	    char* buf = new char[size];
 	    std::snprintf(buf, size, format.c_str(), args...);
-	    return std::string(buf, buf + size - 1 );
+	    return buf;
 	}
 
 	inline void reset_color(std::string& str)
@@ -130,7 +127,7 @@ namespace Protolog
 		str += clr;
 	}
 
-	auto curr_time_ms() -> int64_t
+	auto curr_time_ms()
 	{
 	    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	}
@@ -144,21 +141,5 @@ namespace Protolog
 	    std::cout<<"Elapsed time when "<<f_name<<": "<<after - before<<" ms";
 		return after - before;
 	}
-
-	class MutexLock
-	{
-	private:
-		std::mutex& mut;
-	public:
-		MutexLock(std::mutex& mut)
-		:mut(mut)
-		{
-			mut.lock();
-		}
-		~MutexLock()
-		{
-			mut.unlock();
-		}
-	};
 }
 #endif

@@ -10,7 +10,7 @@ namespace Protolog
         DetailedFormatter()
         {
             log_format_layout = "[Timestamp: %s] [Host: %s] [Thread ID: %d] [Process ID: %d] [User ID: %d] [Function: %s] [Line of Code: %s:%d] [Severity: %s] %s";
-            date_format_layout = "%d:%m:%Y %H:%M:%S %p";
+            date_format_layout = "%d-%m-%Y %H:%M:%S %p";
         }
         virtual std::string format_record(const LogRecord& record) override
         {

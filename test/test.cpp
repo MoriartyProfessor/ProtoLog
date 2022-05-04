@@ -166,7 +166,7 @@ TEST_CASE("LogRecord")
 
 TEST_CASE("Logger Filter")
 {
-    Protolog::Logger& logger = Protolog::Logger::getInstance();
+    Protolog::Logger& logger = Protolog::getLogger();
     std::ostringstream oss;
     std::unique_ptr<Formatter> fmtr = std::make_unique<SimpleFormatter>();
     std::unique_ptr<Handler> handler = std::make_unique<StringStreamHandler>(oss);

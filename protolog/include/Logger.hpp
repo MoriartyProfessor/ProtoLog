@@ -2,20 +2,27 @@
 #define LOGGER_HPP
 #include <list>
 #include <mutex>
+#include <future>
+#include <atomic>
 #include <Utility.hpp>
 
 namespace Protolog
 {
     class Logger
     {
-        private:
+        protected:
         std::mutex mut;
         Severity filter;
         std::list<std::unique_ptr<Handler>> handlers;
-        explicit Logger()
+        
+        Logger()
         :filter{Severity::Trace}
         {
             
+        }
+        virtual ~Logger()
+        {
+
         }
 
         Logger(const Logger&) = delete;
@@ -38,6 +45,18 @@ namespace Protolog
             return *this;
         }
 
+        virtual void log(LogRecord record)
+        {
+            std::lock_guard<std::mutex> lock{mut};
+            if(record.severity_level>=filter)
+            {
+                for(auto it = handlers.begin(); it!=handlers.end(); ++it)
+                {
+                    (*it)->write(record);
+                }
+            }
+        }
+
         static Logger& getInstance()
         {
             static Logger instance;
@@ -49,20 +68,9 @@ namespace Protolog
             handlers.clear();
         }
 
-        void log(const LogRecord& record)
-        {
-            MutexLock lock{mut};
-            if(record.severity_level>=filter)
-            {
-                for(auto it = handlers.begin(); it!=handlers.end(); ++it)
-                {
-                    (*it)->write(record);
-                }
-            }
-        }
-
         void addHandler(std::unique_ptr<Handler> handler_ptr)
         {
+            std::cout<<"AAA"<<std::endl;
             handlers.push_back(std::move(handler_ptr));
         }
      

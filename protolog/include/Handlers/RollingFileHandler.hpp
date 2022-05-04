@@ -26,9 +26,9 @@ namespace Protolog
         std::vector<std::string> get_arch_names()
         {
             std::vector<std::string> arch_names;
-            for(const auto& e : std::filesystem::directory_iterator(arch_dir)) 
+            for(const auto& file_it : std::filesystem::directory_iterator(arch_dir)) 
             {
-                std::string curr_fname = e.path().filename();
+                std::string curr_fname = file_it.path().filename();
                 if(arch_base == curr_fname.substr(0, arch_base.size()))
                 {
                     arch_names.push_back(curr_fname);
@@ -92,7 +92,7 @@ namespace Protolog
         }
 
         public:
-        RollingFileHandler(const std::string& filename, uint max_size = 0, uint max_file = 16)
+        RollingFileHandler(const std::string& filename, uint max_size = 0, uint max_file = 128)
         :FileHandler{filename, std::ios::app}, max_size{max_size},  max_files{max_file}
         {
             if(max_file < 4)
@@ -102,7 +102,6 @@ namespace Protolog
 
         virtual void write(const LogRecord& record) override
         {
-            std::string formatted_record = formatter->format_record(record);
             if(max_size != 0 && file_size(fout) > max_size)
             {
                 archive();

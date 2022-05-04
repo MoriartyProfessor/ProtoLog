@@ -110,7 +110,7 @@ namespace Protolog
         ColoredFormatter()
         {
             log_format_layout = "[Timestamp: %Timestamp%] [Host: %Hostname%] [Thread ID: %ThreadID%] [Process ID: %ProcessID%] [User ID: %UserID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] %Message%";
-            date_format_layout = "%d:%m:%Y %H:%M:%S %p";
+            date_format_layout = "%d-%m-%Y %H:%M:%S %p";
         }
         ColoredFormatter(const std::string& log_format_layout, const std::string& date_format_layout)
         {

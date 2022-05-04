@@ -21,6 +21,10 @@ namespace Protolog
         {
 
         }
+        std::string enque(const LogRecord& record)
+        {
+            return formatter->format_record(record);
+        }
         virtual void write(const LogRecord& record) = 0;
         virtual void setFormatter(std::unique_ptr<Formatter> formatter_ptr)
         {

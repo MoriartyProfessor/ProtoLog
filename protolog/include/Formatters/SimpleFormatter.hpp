@@ -10,7 +10,7 @@ namespace Protolog
         SimpleFormatter()
         {
             log_format_layout = "[%s] [%*s] [%d] [%s@%d] %s";
-            date_format_layout = "%d:%m:%Y %H:%M:%S %p";
+            date_format_layout = "%d-%m-%Y %H:%M:%S %p";
         }
         virtual std::string format_record(const LogRecord& record) override
         {

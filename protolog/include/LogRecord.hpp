@@ -4,6 +4,8 @@
 #include <Utility.hpp>
 
 #include <libgen.h>
+#include <fmt/core.h>
+#include <fmt/ranges.h>
 
 namespace Protolog
 {
@@ -30,17 +32,12 @@ namespace Protolog
             hostname = get_host_name();
             this->filename = basename(filename.data());
         }
-
-        template<typename... Types>
-        friend LogRecord log_recordf(Severity sev_level, std::string filename, std::string funcname, unsigned int line, std::string f_message, Types... args);
     };
     
     template<typename... Types>
     LogRecord log_recordf(Severity sev_level, const std::string& filename, const std::string& funcname, unsigned int line, const std::string& f_message, Types... args)
     {
-        LogRecord record{sev_level, filename, funcname, line, std::string{}};
-        record.message = formatter_string(f_message, args...);
-        return record;
+        return  {sev_level, filename, funcname, line, fmt::format(f_message, args...)};
     }
 }
 

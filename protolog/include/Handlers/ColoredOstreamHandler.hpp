@@ -79,7 +79,12 @@ namespace Protolog
         virtual void write(const LogRecord& record) override
         {
             std::string sever_color = color_scheme.get_severity_color(record.severity_level);
-            out<<sever_color<<formatter->format_record(record)<<RESET<<std::endl;
+            std::string res;
+            set_color(res, sever_color);
+            res += formatter->format_record(record);
+            reset_color(res);
+            res += '\n';
+            out<<res;
         }
     };
 }

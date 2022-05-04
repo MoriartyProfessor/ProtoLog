@@ -1,7 +1,7 @@
 #ifndef PROTOLOG_HPP
 #define PROTOLOG_HPP
 
-#include <Logger.hpp>
+#include <AsyncLogger.hpp>
 
 #ifdef __GNUG__
 #define __LOG_FUNC__ __PRETTY_FUNCTION__
@@ -50,37 +50,40 @@
 #define _LOG_ERROR_F(logger, format, ...) if(Protolog::Severity::Error>=logger.getFilterLevel()) logger.log(LOG_RECORD_F(Error, format, __VA_ARGS__))
 #define _LOG_FATAL_F(logger, format, ...) if(Protolog::Severity::Fatal>=logger.getFilterLevel()) logger.log(LOG_RECORD_F(Fatal, format, __VA_ARGS__))
 
-#define LOG_TRACE(message) _LOG_TRACE(Protolog::Logger::getInstance(), message); Protolog::Logger::getInstance()
-#define LOG_DEBUG(message) _LOG_DEBUG(Protolog::Logger::getInstance(), message); Protolog::Logger::getInstance()
-#define LOG_INFO(message) _LOG_INFO(Protolog::Logger::getInstance(), message); Protolog::Logger::getInstance()
-#define LOG_WARNING(message) _LOG_WARNING(Protolog::Logger::getInstance(), message); Protolog::Logger::getInstance()
-#define LOG_ERROR(message) _LOG_ERROR(Protolog::Logger::getInstance(), message); Protolog::Logger::getInstance()
-#define LOG_FATAL(message) _LOG_FATAL(Protolog::Logger::getInstance(), message); Protolog::Logger::getInstance()
+#define LOG_TRACE(message) _LOG_TRACE(Protolog::getLogger(), message); Protolog::getLogger()
+#define LOG_DEBUG(message) _LOG_DEBUG(Protolog::getLogger(), message); Protolog::getLogger()
+#define LOG_INFO(message) _LOG_INFO(Protolog::getLogger(), message); Protolog::getLogger()
+#define LOG_WARNING(message) _LOG_WARNING(Protolog::getLogger(), message); Protolog::getLogger()
+#define LOG_ERROR(message) _LOG_ERROR(Protolog::getLogger(), message); Protolog::getLogger()
+#define LOG_FATAL(message) _LOG_FATAL(Protolog::getLogger(), message); Protolog::getLogger()
 
-#define LOG_TRACE_F(format, ...) _LOG_TRACE_F(Protolog::Logger::getInstance(), format, __VA_ARGS__); Protolog::Logger::getInstance()
-#define LOG_DEBUG_F(format, ...) _LOG_DEBUG_F(Protolog::Logger::getInstance(), format, __VA_ARGS__); Protolog::Logger::getInstance()
-#define LOG_INFO_F(format, ...) _LOG_INFO_F(Protolog::Logger::getInstance(), format, __VA_ARGS__); Protolog::Logger::getInstance()
-#define LOG_WARNING_F(format, ...) _LOG_WARNING_F(Protolog::Logger::getInstance(), format, __VA_ARGS__); Protolog::Logger::getInstance()
-#define LOG_ERROR_F(format, ...) _LOG_ERROR_F(Protolog::Logger::getInstance(), format, __VA_ARGS__); Protolog::Logger::getInstance()
-#define LOG_FATAL_F(format, ...) _LOG_FATAL_F(Protolog::Logger::getInstance(), format, __VA_ARGS__); Protolog::Logger::getInstance()
+#define LOG_TRACE_F(format, ...) _LOG_TRACE_F(Protolog::getLogger(), format, __VA_ARGS__); Protolog::getLogger()
+#define LOG_DEBUG_F(format, ...) _LOG_DEBUG_F(Protolog::getLogger(), format, __VA_ARGS__); Protolog::getLogger()
+#define LOG_INFO_F(format, ...) _LOG_INFO_F(Protolog::getLogger(), format, __VA_ARGS__); Protolog::getLogger()
+#define LOG_WARNING_F(format, ...) _LOG_WARNING_F(Protolog::getLogger(), format, __VA_ARGS__); Protolog::getLogger()
+#define LOG_ERROR_F(format, ...) _LOG_ERROR_F(Protolog::getLogger(), format, __VA_ARGS__); Protolog::getLogger()
+#define LOG_FATAL_F(format, ...) _LOG_FATAL_F(Protolog::getLogger(), format, __VA_ARGS__); Protolog::getLogger()
 
-#define LOG_TRACE_IF(condition, message) if(condintion) _LOG_TRACE(Protolog::Logger::getInstance(), message)
-#define LOG_DEBUG_IF(condition, message) if(condintion) _LOG_DEBUG(Protolog::Logger::getInstance(), message)
-#define LOG_INFO_IF(condition, message) if(condintion) _LOG_INFO(Protolog::Logger::getInstance(), message)
-#define LOG_WARNING_IF(condition, message) if(condintion) _LOG_WARNING(Protolog::Logger::getInstance(), message)
-#define LOG_ERROR_IF(condition, message) if(condintion) _LOG_ERROR(Protolog::Logger::getInstance(), message)
-#define LOG_FATAL_IF(condition, message) if(condintion) _LOG_FATAL(Protolog::Logger::getInstance(), message)
+#define LOG_TRACE_IF(condition, message) if(condintion) _LOG_TRACE(Protolog::getLogger(), message)
+#define LOG_DEBUG_IF(condition, message) if(condintion) _LOG_DEBUG(Protolog::getLogger(), message)
+#define LOG_INFO_IF(condition, message) if(condintion) _LOG_INFO(Protolog::getLogger(), message)
+#define LOG_WARNING_IF(condition, message) if(condintion) _LOG_WARNING(Protolog::getLogger(), message)
+#define LOG_ERROR_IF(condition, message) if(condintion) _LOG_ERROR(Protolog::getLogger(), message)
+#define LOG_FATAL_IF(condition, message) if(condintion) _LOG_FATAL(Protolog::getLogger(), message)
 
-#define LOG_TRACE_IF_F(condition, format, ...) if(condition) _LOG_TRACE_F(Protolog::Logger::getInstance(), format, __VA_ARGS__)
-#define LOG_DEBUG_IF_F(condition, format, ...) if(condition) _LOG_DEBUG_F(Protolog::Logger::getInstance(), format, __VA_ARGS__)
-#define LOG_INFO_IF_F(condition, format, ...) if(condition) _LOG_INFO_F(Protolog::Logger::getInstance(), format, __VA_ARGS__)
-#define LOG_WARNING_IF_F(condition, format, ...) if(condition) _LOG_WARNING_F(Protolog::Logger::getInstance(), format, __VA_ARGS__)
-#define LOG_ERROR_IF_F(condition, format, ...) if(condition) _LOG_ERROR_F(Protolog::Logger::getInstance(), format, __VA_ARGS__)
-#define LOG_FATAL_IF_F(condition, format, ...) if(condition) _LOG_FATAL_F(Protolog::Logger::getInstance(), format, __VA_ARGS__)
+#define LOG_TRACE_IF_F(condition, format, ...) if(condition) _LOG_TRACE_F(Protolog::getLogger(), format, __VA_ARGS__)
+#define LOG_DEBUG_IF_F(condition, format, ...) if(condition) _LOG_DEBUG_F(Protolog::getLogger(), format, __VA_ARGS__)
+#define LOG_INFO_IF_F(condition, format, ...) if(condition) _LOG_INFO_F(Protolog::getLogger(), format, __VA_ARGS__)
+#define LOG_WARNING_IF_F(condition, format, ...) if(condition) _LOG_WARNING_F(Protolog::getLogger(), format, __VA_ARGS__)
+#define LOG_ERROR_IF_F(condition, format, ...) if(condition) _LOG_ERROR_F(Protolog::getLogger(), format, __VA_ARGS__)
+#define LOG_FATAL_IF_F(condition, format, ...) if(condition) _LOG_FATAL_F(Protolog::getLogger(), format, __VA_ARGS__)
 
 namespace Protolog
 {
-    
+    Logger& getLogger()
+    {
+        return AsyncLogger::getInstance();
+    }
 }
 
 #endif

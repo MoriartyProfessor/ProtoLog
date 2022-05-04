@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 
 #include <CustomizibleFormatter.hpp>
 #include <SimpleFormatter.hpp>
@@ -6,6 +7,7 @@
 #include <MessageOnlyFormatter.hpp>
 #include <DetailedFormatter.hpp>
 #include <FileHandler.hpp>
+#include <ColoredOstreamHandler.hpp>
 #include <RollingFileHandler.hpp>
 #include <Protolog.hpp>
 
@@ -14,9 +16,9 @@ using namespace std;
 
 void customizible_init()
 {
-    Protolog::Logger& logger = Protolog::Logger::getInstance();
+    Protolog::Logger& logger = Protolog::getLogger();
     auto ptr = std::make_unique<FileHandler>("log.txt", std::ios::trunc);
-    auto fmtr = std::make_unique<CustomizibleFormatter>("[Timestamp: %Timestamp%] [Process ID: %ProcessID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] Message: %Message%",
+    auto fmtr = std::make_unique<CustomizibleFormatter>("[Timestamp: %Timestamp%] [Thread ID: %ThreadID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] Message: %Message%",
     "%b %d %Y %I:%M:%S AM");
     ptr->setFormatter(std::move(fmtr));
     logger.addHandler(std::move(ptr));
@@ -33,25 +35,31 @@ void benchmark_customizible()
 
 void simple_init()
 {
-    Protolog::Logger& logger = Protolog::Logger::getInstance();
+    Protolog::Logger& logger = Protolog::getLogger();
     auto ptr = std::make_unique<FileHandler>("log.txt", std::ios::trunc);
     auto fmtr = std::make_unique<SimpleFormatter>();
     ptr->setFormatter(std::move(fmtr));
     logger.addHandler(std::move(ptr));
+    
+    auto ptr1 = std::make_unique<ColoredOstreamHandler>();
+    auto fmtr1 = std::make_unique<SimpleFormatter>();
+    ptr1->setFormatter(std::move(fmtr1));
+    logger.addHandler(std::move(ptr1));
 }
 
 void benchmark_simple()
 {
     simple_init();
+    Protolog::Logger& logger = Protolog::getLogger();
     for(int i = 0; i<10000; ++i)
     {
-        LOG_DEBUG(std::to_string(i));
+        logger.log(LOG_RECORD_DEBUG(std::to_string(i)));
     }
 }
 
 void detailed_init()
 {
-    Protolog::Logger& logger = Protolog::Logger::getInstance();
+    Protolog::Logger& logger = Protolog::getLogger();
     auto ptr = std::make_unique<FileHandler>("log.txt", std::ios::trunc);
     auto fmtr = std::make_unique<DetailedFormatter>();
     ptr->setFormatter(std::move(fmtr));
@@ -69,9 +77,9 @@ void benchmark_detailed()
 
 void customizible_rotating_init()
 {
-    Protolog::Logger& logger = Protolog::Logger::getInstance();
+    Protolog::Logger& logger = Protolog::getLogger();
     auto ptr = std::make_unique<RollingFileHandler>("log.txt", 131072);
-    auto fmtr = std::make_unique<CustomizibleFormatter>("[Timestamp: %Timestamp%] [Process ID: %ProcessID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] Message: %Message%",
+    auto fmtr = std::make_unique<CustomizibleFormatter>("[Timestamp: %Timestamp%] [Thread ID: %ThreadID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] Message: %Message%",
     "%b %d %Y %I:%M:%S AM");
     ptr->setFormatter(std::move(fmtr));
     logger.addHandler(std::move(ptr));
@@ -79,7 +87,7 @@ void customizible_rotating_init()
 
 void benchmark_customizible_rotating()
 {
-    customizible_rotating_init();
+    //customizible_rotating_init();
     for(int i = 0; i<10000; ++i)
     {
         LOG_DEBUG(std::to_string(i));
@@ -88,7 +96,7 @@ void benchmark_customizible_rotating()
 
 void simple_rotating_init()
 {
-    Protolog::Logger& logger = Protolog::Logger::getInstance();
+    Protolog::Logger& logger = Protolog::getLogger();
     auto ptr = std::make_unique<RollingFileHandler>("log.txt", 131072);
     auto fmtr = std::make_unique<SimpleFormatter>();
     ptr->setFormatter(std::move(fmtr));
@@ -106,7 +114,7 @@ void benchmark_simple_rotating()
 
 void detailed_rotating_init()
 {
-    Protolog::Logger& logger = Protolog::Logger::getInstance();
+    Protolog::Logger& logger = Protolog::getLogger();
     auto ptr = std::make_unique<RollingFileHandler>("log.txt", 131072);
     auto fmtr = std::make_unique<DetailedFormatter>();
     ptr->setFormatter(std::move(fmtr));
@@ -129,12 +137,33 @@ int mps(int64_t elapsed)
     return (1.0/spm);
 }
 
+void thread_logging()
+{
+    detailed_rotating_init();
+    std::thread t1(benchmark_customizible_rotating);
+    std::thread t2(benchmark_customizible_rotating);
+    std::thread t3(benchmark_customizible_rotating);
+    std::thread t4(benchmark_customizible_rotating);
+    
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+
+    //benchmark_customizible_rotating();
+    //benchmark_customizible_rotating();
+    //benchmark_customizible_rotating();
+    //benchmark_customizible_rotating();
+}
 
 int main()
 {
     Protolog::Logger& logger = Protolog::Logger::getInstance();
     int64_t elapsed;
 
+    measure(thread_logging, "thread logging with simple formatting of 40000 messages");
+
+/*
     elapsed = measure(benchmark_simple, "logging with simple formatting of 10000 messages");
     std::cout<<" -> "<<mps(elapsed)<<" messages/sec"<<std::endl;
     logger.clear();
@@ -159,5 +188,6 @@ int main()
     std::cout<<" -> "<<mps(elapsed)<<" messages/sec"<<std::endl;
     logger.clear();
 
+*/
     return 0;
 }
