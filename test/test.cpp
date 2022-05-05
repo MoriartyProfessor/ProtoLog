@@ -257,7 +257,7 @@ TEST_CASE("AsyncLogger")
 {
     Protolog::Logger& logger = Protolog::getLogger();
     std::ostringstream oss;
-    std::unique_ptr<Formatter> fmtr = std::make_unique<SimpleFormatter>();
+    std::unique_ptr<Formatter> fmtr = std::make_unique<MessageOnlyFormatter>();
     std::unique_ptr<Handler> handler = std::make_unique<StringStreamHandler>(oss);
     handler->setFormatter(std::move(fmtr));
     logger.addHandler(std::move(handler));
@@ -282,7 +282,7 @@ TEST_CASE("AsyncLogger")
 
     sleep(1);
     logger.clear();
-    CHECK(oss.tellp() == 3480);
+    CHECK(oss.tellp() == 760);
 }
 
 TEST_SUITE_END();

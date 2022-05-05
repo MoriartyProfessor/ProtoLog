@@ -43,36 +43,14 @@ namespace Protolog
             {
                 if(destroy.load() && q.empty())
                     return;
-                auto ref = q.wait_and_pop();
+                auto ref = q.try_pop();
+                if(ref == std::shared_ptr<LogRecord>())
+                    continue;
                 for(auto it = handlers.begin(); it!=handlers.end(); ++it)
                 {
                     (*it)->write(*ref);
                 }
             }
-            /*
-            while(destroy.load())
-            {
-                if(destroy.load())
-                {
-                    std::shared_ptr<LogRecord> ref;
-                    while(ref = q.pop())
-                    {
-                        for(auto it = handlers.begin(); it!=handlers.end(); ++it)
-                        {
-                            (*it)->write(*ref);
-                        }                        
-                    }
-                    return;                    
-                }
-                auto ref = q.pop();
-                for(;ref==nullptr; ref = q.pop()){}
-                for(auto it = handlers.begin(); it!=handlers.end(); ++it)
-                {
-                    (*it)->write(*ref);
-                }
-                
-            }
-            */
         }
     };
 }
