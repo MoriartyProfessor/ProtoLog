@@ -3,6 +3,8 @@
 #include <thread>
 #include <map>
 
+#include <ConcurrentQueue.hpp>
+
 #include <CustomizibleFormatter.hpp>
 #include <ColoredFormatter.hpp>
 #include <MessageOnlyFormatter.hpp>
@@ -55,20 +57,27 @@ void log_messages()
     LOG_INFO_F("Logger Macro {}", "parametrized");
 }
 
-void log_many()
+void log_many(int s)
 {
     for(int i = 1; i<100; ++i)
     {
-        LOG_WARNING_F("Message {1}: {0}", i, 100-i);
+    	if(s == 1)
+        	LOG_WARNING_F("Message {1}: {0}", i, i);
+        if(s == 2)
+        	LOG_INFO_F("Message {1}: {0}", i, i);
+        if(s == 3)
+        	LOG_DEBUG_F("Message {1}: {0}", i, i);
+        if(s == 4)
+        	LOG_TRACE_F("Message {1}: {0}", i, i);
     }
 }
 
 void threaded_logging()
 {
-    std::thread t1{log_messages};
-    std::thread t2{log_messages};
-    std::thread t3{log_messages};
-    std::thread t4{log_messages};
+    std::thread t1{log_many, 1};
+    std::thread t2{log_many, 2};
+    std::thread t3{log_many, 3};
+    std::thread t4{log_many, 4};
 
     t1.join();
     t2.join();
@@ -77,12 +86,10 @@ void threaded_logging()
 }
 
 int main()
-{
-    Protolog::Logger& logger = Protolog::Logger::getInstance();
-    
+{   
     config_logger_simple();
-    log_many();
-    //logger.clear();
+    
+    threaded_logging();
 
     //config_logger_customizible();
     //log_messages();

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <mutex>
 #include <filesystem>
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
@@ -73,7 +74,7 @@ TEST_SUITE_BEGIN("Formatters");
 TEST_CASE("Message-only Formatter")
 {
     MessageOnlyFormatter formatter;
-    CHECK(formatter.format_record(LOG_RECORD_WARNING_F("I will be %s", "back")) == "[Warning] Message: I will be back");
+    CHECK(formatter.format_record(LOG_RECORD_WARNING_F("I will be {}", "back")) == "[Warning] Message: I will be back");
     CHECK(formatter.format_record(LOG_RECORD_INFO("I am vengeance, I am the Night")) == "[Info] Message: I am vengeance, I am the Night");
     CHECK(formatter.format_record(LOG_RECORD_DEBUG("Dumbledore asked calmly")) == "[Debug] Message: Dumbledore asked calmly");
     CHECK(formatter.format_record(LOG_RECORD_FATAL("Hardware: the part of a computer that you can kick.")) == "[Fatal] Message: Hardware: the part of a computer that you can kick.");
@@ -112,12 +113,12 @@ TEST_CASE("Simple Formatter")
     LogRecord record = LOG_RECORD_WARNING("I will be back");
     record.log_time = 0;
     CHECK(formatter.format_record(record) == formatter_string("[%s] [%*s] [%d] [%s@%d] %s", 
-    "01:01:1970 06:00:00 AM", 8, sever_to_str(record.severity_level).data(), record.tid, record.funcname.data(), record.line, record.message.data()));
+    "01-01-1970 06:00:00 AM", 8, sever_to_str(record.severity_level).data(), record.tid, record.funcname.data(), record.line, record.message.data()));
     
     record = LOG_RECORD_INFO("I am vengeance, I am the Night");
     record.log_time = 0;
     CHECK(formatter.format_record(record) == formatter_string("[%s] [%*s] [%d] [%s@%d] %s", 
-    "01:01:1970 06:00:00 AM", 8, sever_to_str(record.severity_level).data(), record.tid, record.funcname.data(), record.line, record.message.data()));
+    "01-01-1970 06:00:00 AM", 8, sever_to_str(record.severity_level).data(), record.tid, record.funcname.data(), record.line, record.message.data()));
 }
 
 TEST_CASE("Detailed Formatter")
@@ -127,12 +128,12 @@ TEST_CASE("Detailed Formatter")
     LogRecord record = LOG_RECORD_WARNING("I will be back");
     record.log_time = 0;
     CHECK(formatter.format_record(record) == formatter_string("[Timestamp: %s] [Host: %s] [Thread ID: %d] [Process ID: %d] [User ID: %d] [Function: %s] [Line of Code: %s:%d] [Severity: %s] %s", 
-    "01:01:1970 06:00:00 AM", record.hostname.data(), record.tid, record.pid, record.uid, record.funcname.data(), record.filename.data(), record.line, sever_to_str(record.severity_level).data(), record.message.data()));
+    "01-01-1970 06:00:00 AM", record.hostname.data(), record.tid, record.pid, record.uid, record.funcname.data(), record.filename.data(), record.line, sever_to_str(record.severity_level).data(), record.message.data()));
     
     record = LOG_RECORD_INFO("I am vengeance, I am the Night");
     record.log_time = 0;
     CHECK(formatter.format_record(record) == formatter_string("[Timestamp: %s] [Host: %s] [Thread ID: %d] [Process ID: %d] [User ID: %d] [Function: %s] [Line of Code: %s:%d] [Severity: %s] %s", 
-    "01:01:1970 06:00:00 AM", record.hostname.data(), record.tid, record.pid, record.uid, record.funcname.data(), record.filename.data(), record.line, sever_to_str(record.severity_level).data(), record.message.data()));
+    "01-01-1970 06:00:00 AM", record.hostname.data(), record.tid, record.pid, record.uid, record.funcname.data(), record.filename.data(), record.line, sever_to_str(record.severity_level).data(), record.message.data()));
 }
 
 TEST_CASE("Colored Formatter")
@@ -158,7 +159,7 @@ TEST_CASE("LogRecord")
     CHECK(rec.severity_level == Severity::Info);
     CHECK(rec.filename == "test.cpp");
     CHECK(rec.message == "Message");
-    rec = LOG_RECORD_F(Debug, "%s Ring to rule them all, %d Ring to find them, One Ring to bring them all and in the darkness bind them.", "One", 1);
+    rec = LOG_RECORD_F(Debug, "{1} Ring to rule them all, {0} Ring to find them, One Ring to bring them all and in the darkness bind them.", 1, "One");
     CHECK(rec.severity_level == Severity::Debug);
     CHECK(rec.filename == "test.cpp");
     CHECK(rec.message == "One Ring to rule them all, 1 Ring to find them, One Ring to bring them all and in the darkness bind them.");
@@ -166,13 +167,13 @@ TEST_CASE("LogRecord")
 
 TEST_CASE("Logger Filter")
 {
-    Protolog::Logger& logger = Protolog::getLogger();
+    Protolog::Logger& logger = Protolog::Logger::getInstance();
     std::ostringstream oss;
     std::unique_ptr<Formatter> fmtr = std::make_unique<SimpleFormatter>();
     std::unique_ptr<Handler> handler = std::make_unique<StringStreamHandler>(oss);
     handler->setFormatter(std::move(fmtr));
     logger.addHandler(std::move(handler));
-    logger.setFilterLevel(Severity::Warning);
+    logger.setFilterLevel(Severity::Info);
 
     LogRecord record = LOG_RECORD_TRACE("TRACE");
     logger.log(record);
@@ -184,7 +185,7 @@ TEST_CASE("Logger Filter")
 
     record = LOG_RECORD_INFO("INFO");
     logger.log(record);
-    CHECK(oss.str() == "");
+    CHECK(oss.str() != "");
 
     record = LOG_RECORD_WARNING("WARNING");
     logger.log(record);
@@ -197,6 +198,91 @@ TEST_CASE("Logger Filter")
     record = LOG_RECORD_FATAL("FATAL");
     logger.log(record);
     CHECK(oss.str() != "");
+    
+    logger.clear();
+}
+
+TEST_SUITE_END();
+
+TEST_SUITE_BEGIN("Logger");
+
+TEST_CASE("LogRecord") 
+{
+    LogRecord rec = LOG_RECORD(Info, "Message");
+    CHECK(rec.severity_level == Severity::Info);
+    CHECK(rec.filename == "test.cpp");
+    CHECK(rec.message == "Message");
+    rec = LOG_RECORD_F(Debug, "{1} Ring to rule them all, {0} Ring to find them, One Ring to bring them all and in the darkness bind them.", 1, "One");
+    CHECK(rec.severity_level == Severity::Debug);
+    CHECK(rec.filename == "test.cpp");
+    CHECK(rec.message == "One Ring to rule them all, 1 Ring to find them, One Ring to bring them all and in the darkness bind them.");
+}
+
+TEST_SUITE_BEGIN("Multi-threading");
+
+TEST_CASE("ConcurrentQueue")
+{
+    ConcurrentQueue<int> q;
+    auto foo = [&q](int cnt, int v){
+        for(int i = 0; i<cnt; ++i)
+        {
+            q.push(v);
+        }
+    };
+
+    std::thread t1{foo, 100, 0};
+    std::thread t2{foo, 99, 1};
+    std::thread t3{foo, 98, 2};
+    std::thread t4{foo, 97, 3};
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+
+    std::vector<int> vec(4, 0);
+
+    while(!q.empty())
+    {
+        auto val = *q.try_pop();
+        vec[val]++;
+    }
+    CHECK(vec[0] == 100);
+    CHECK(vec[1] == 99);
+    CHECK(vec[2] == 98);
+    CHECK(vec[3] == 97);
+}
+
+TEST_CASE("AsyncLogger")
+{
+    Protolog::Logger& logger = Protolog::getLogger();
+    std::ostringstream oss;
+    std::unique_ptr<Formatter> fmtr = std::make_unique<SimpleFormatter>();
+    std::unique_ptr<Handler> handler = std::make_unique<StringStreamHandler>(oss);
+    handler->setFormatter(std::move(fmtr));
+    logger.addHandler(std::move(handler));
+
+    auto foo = [&logger](){
+        for(int i = 0; i<10; ++i)
+        {
+            LogRecord rec = LOG_RECORD_DEBUG(std::to_string(i));
+            logger.log(rec);
+        }
+    };
+
+    std::thread t1{foo};
+    std::thread t2{foo};
+    std::thread t3{foo};
+    std::thread t4{foo};
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+
+    sleep(1);
+    logger.clear();
+    CHECK(oss.tellp() == 3480);
 }
 
 TEST_SUITE_END();

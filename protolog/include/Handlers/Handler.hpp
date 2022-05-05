@@ -19,7 +19,7 @@ namespace Protolog
         Handler(std::unique_ptr<Formatter> formatter_ptr)
         :formatter{std::move(formatter_ptr)}
         {
-
+            
         }
         std::string enque(const LogRecord& record)
         {

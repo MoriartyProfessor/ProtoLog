@@ -5,16 +5,17 @@
 #include <condition_variable>
 #include <queue>
 #include <memory>
+#include <atomic>
 
 namespace Protolog
 {
-	template<typename T>
+	template<typename T, typename BasicQueue = std::queue<T>>
 	class ConcurrentQueue
 	{
 	private:
 	    mutable std::mutex mut;
-	    std::queue<T> data_queue;
-	    std::condition_variable data_cond;
+	    BasicQueue data_container;
+	    std::condition_variable cond_var;
 	public:
 	    ConcurrentQueue()
 	    {
@@ -22,65 +23,72 @@ namespace Protolog
 		}
 	    ConcurrentQueue(ConcurrentQueue const& other)
 	    {
-	        std::lock_guard<std::mutex> lk{other.mut};
-	        data_queue=other.data_queue;
+	        std::lock_guard<std::mutex> lock{other.mut};
+	        data_container=other.data_container;
 	    }
 
-	    void push(T new_value)
+	    void push(T value)
 	    {
-	        std::lock_guard<std::mutex> lk{mut};
-	        data_queue.push(new_value);
-	        data_cond.notify_one();
+	        std::lock_guard<std::mutex> lock{mut};
+	        data_container.push(value);
+	        cond_var.notify_one();
 	    }
 
 	    void wait_and_pop(T& value)
 	    {
-	        std::unique_lock<std::mutex> lk{mut};
-	        data_cond.wait(lk,[this]
+	        std::unique_lock<std::mutex> lock{mut};
+	        cond_var.wait(lock,[this]
 				{
-					return !data_queue.empty();
+					return !data_container.empty();
 				});
-	        value = data_queue.front();
-	        data_queue.pop();
+	        value = data_container.front();
+	        data_container.pop();
 	    }
 
 	    std::shared_ptr<T> wait_and_pop()
 	    {
-	        std::unique_lock<std::mutex> lk{mut};
-	        data_cond.wait(lk,[this]{return !data_queue.empty();});
-	        std::shared_ptr<T> res(std::make_shared<T>(data_queue.front()));
-	        data_queue.pop();
+	        std::unique_lock<std::mutex> lock{mut};
+	        cond_var.wait(lock,[this]
+			{
+				return !data_container.empty();
+			});
+	        std::shared_ptr<T> res(std::make_shared<T>(data_container.front()));
+	        data_container.pop();
 	        return res;
 	    }
 
 	    bool try_pop(T& value)
 	    {
-	        std::lock_guard<std::mutex> lk{mut};
-	        if(data_queue.empty)
+	        std::lock_guard<std::mutex> lock{mut};
+	        if(data_container.empty())
 	            return false;
-	        value=data_queue.front();
-	        data_queue.pop();
+	        value = data_container.front();
+	        data_container.pop();
 	        return true;
 	    }
 
 	    std::shared_ptr<T> try_pop()
 	    {
-	        std::lock_guard<std::mutex> lk{mut};
-	        if(data_queue.empty())
+	        std::lock_guard<std::mutex> lock{mut};
+	        if(data_container.empty())
 	            return std::shared_ptr<T>();
-	        std::shared_ptr<T> res(std::make_shared<T>(data_queue.front()));
-	        data_queue.pop();
+	        std::shared_ptr<T> res(std::make_shared<T>(data_container.front()));
+	        data_container.pop();
 	        return res;
 	    }
 
 	    bool empty() const
 	    {
-	        std::lock_guard<std::mutex> lk{mut};
-	        return data_queue.empty();
+	        std::lock_guard<std::mutex> lock{mut};
+	        return data_container.empty();
 	    }
-	};
 
-	
+		size_t size() const
+		{
+			std::lock_guard<std::mutex> lock{mut};
+			return data_container.size();
+		}
+	};
 }
 
 #endif

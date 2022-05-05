@@ -162,6 +162,7 @@ int main()
     int64_t elapsed;
 
     measure(thread_logging, "thread logging with simple formatting of 40000 messages");
+    std::cout<<std::endl;
 
 /*
     elapsed = measure(benchmark_simple, "logging with simple formatting of 10000 messages");

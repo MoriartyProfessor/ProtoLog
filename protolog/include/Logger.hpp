@@ -3,7 +3,6 @@
 #include <list>
 #include <mutex>
 #include <future>
-#include <atomic>
 #include <Utility.hpp>
 
 namespace Protolog
@@ -70,7 +69,6 @@ namespace Protolog
 
         void addHandler(std::unique_ptr<Handler> handler_ptr)
         {
-            std::cout<<"AAA"<<std::endl;
             handlers.push_back(std::move(handler_ptr));
         }
      

@@ -15,7 +15,7 @@ namespace Protolog
         static bool initialized = false;
         if(!initialized)
         {
-            Protolog::Logger& logger = Protolog::Logger::getInstance();
+            Protolog::Logger& logger = Protolog::getLogger();
             auto ptr1 = std::make_unique<RollingFileHandler>("log.txt", 16384);
             auto ptr2 = std::make_unique<ColoredOstreamHandler>();
             ptr2->set_color_scheme({CHARTREUSE, PURPLE, CYAN, YELLOW, RED, BOLDRED});

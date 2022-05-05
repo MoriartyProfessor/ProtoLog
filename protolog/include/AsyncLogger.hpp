@@ -21,8 +21,8 @@ namespace Protolog
             destroy = true;
             t.join();
         }
-        public:
         
+        public:
         static AsyncLogger& getInstance()
         {
             static AsyncLogger instance;
@@ -49,6 +49,30 @@ namespace Protolog
                     (*it)->write(*ref);
                 }
             }
+            /*
+            while(destroy.load())
+            {
+                if(destroy.load())
+                {
+                    std::shared_ptr<LogRecord> ref;
+                    while(ref = q.pop())
+                    {
+                        for(auto it = handlers.begin(); it!=handlers.end(); ++it)
+                        {
+                            (*it)->write(*ref);
+                        }                        
+                    }
+                    return;                    
+                }
+                auto ref = q.pop();
+                for(;ref==nullptr; ref = q.pop()){}
+                for(auto it = handlers.begin(); it!=handlers.end(); ++it)
+                {
+                    (*it)->write(*ref);
+                }
+                
+            }
+            */
         }
     };
 }
