@@ -39,11 +39,13 @@ int main()
     
     LOG_FATAL("Last message before catastrophe");
     
-    LOG_FATAL_F("Message: this is %dst parametrized %s", 1, "message");
+    LOG_FATAL("Message: this is {}st parametrized {}", 1, "message");
     
-    LOG_TRACE("Hello World!")<<LOG_RECORD_TRACE_F("Stream log and %s %s", "parametrizing", "combined");
+    LOG_TRACE("Hello World!");
     
-    LOG_INFO_F("Logger Macro %s", "parametrized");
+    LOG_TRACE("{} {}", "Parametrizing", "logging");
+    
+    LOG_INFO("Logger Macro {}", "parametrized");
 }
 ```
 
@@ -59,8 +61,8 @@ And its output:
 [19-04-2022 11:09:36 AM] [   Fatal] [18455] [void log_messages()@45] Last message before catastrophe
 [19-04-2022 11:09:36 AM] [   Fatal] [18455] [void log_messages()@47] Message: this is 1st parametrized message
 [19-04-2022 11:09:36 AM] [   Trace] [18455] [void log_messages()@49] Hello World!
-[19-04-2022 11:09:36 AM] [   Trace] [18455] [void log_messages()@49] Stream log and parametrizing combined
-[19-04-2022 11:09:36 AM] [    Info] [18455] [void log_messages()@51] Logger Macro parametrized
+[19-04-2022 11:09:36 AM] [   Trace] [18455] [void log_messages()@51] Parametrizing combined
+[19-04-2022 11:09:36 AM] [    Info] [18455] [void log_messages()@53] Logger Macro parametrized
 ```
 
  

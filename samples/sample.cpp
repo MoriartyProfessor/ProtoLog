@@ -54,7 +54,7 @@ void log_messages()
     
     LOG_TRACE("Hello World!");
     
-    LOG_TRACE("{} {}", "parametrizing", "logging");
+    LOG_TRACE("{} {}", "Parametrizing", "logging");
     
     LOG_INFO("Logger Macro {}", "parametrized");
 }
@@ -91,7 +91,7 @@ int main()
 {   
     config_logger_simple();
     
-    threaded_logging();
+    log_messages();
 
     //config_logger_customizible();
     //log_messages();
