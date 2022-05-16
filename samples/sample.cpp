@@ -52,7 +52,9 @@ void log_messages()
     
     LOG_FATAL_F("Message: this is {}st parametrized {}", 1, "message");
     
-    LOG_TRACE("Hello World!")<<LOG_RECORD_TRACE_F("Stream log and {} {}", "parametrizing", "combined");
+    LOG_TRACE("Hello World!");
+    
+    LOG_TRACE_F("{} {}", "parametrizing", "logging");
     
     LOG_INFO_F("Logger Macro {}", "parametrized");
 }

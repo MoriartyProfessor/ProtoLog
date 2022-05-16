@@ -10,7 +10,6 @@ namespace Protolog
     class Logger
     {
         protected:
-        std::mutex mut;
         Severity filter;
         std::list<std::unique_ptr<Handler>> handlers;
         
@@ -28,39 +27,8 @@ namespace Protolog
         Logger& operator=(const Logger&) = delete;
 
         public:
-        Logger& operator<<(Severity sever)
-        {
-            filter = sever;
-            return *this;
-        }
-        Logger& operator<<(const LogRecord& record)
-        {
-            log(record);
-            return *this;
-        }
-
-        Logger& operator<<(const Logger& logger)
-        {
-            return *this;
-        }
-
-        virtual void log(LogRecord record)
-        {
-            std::lock_guard<std::mutex> lock{mut};
-            if(record.severity_level>=filter)
-            {
-                for(auto it = handlers.begin(); it!=handlers.end(); ++it)
-                {
-                    (*it)->write(record);
-                }
-            }
-        }
-
-        static Logger& getInstance()
-        {
-            static Logger instance;
-            return instance;
-        }
+        
+        virtual void log(LogRecord record) = 0;
 
         void clear()
         {

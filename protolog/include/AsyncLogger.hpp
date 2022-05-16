@@ -16,6 +16,7 @@ namespace Protolog
         {
 
         }
+        
         virtual ~AsyncLogger()
         {
             destroy = true;

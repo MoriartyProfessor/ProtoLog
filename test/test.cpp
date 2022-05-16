@@ -14,10 +14,26 @@
 #include <DetailedFormatter.hpp>
 #include <RollingFileHandler.hpp>
 #include <ColoredOstreamHandler.hpp>
-#include <StringStreamHandler.hpp>
 #include <Protolog.hpp>
 
 using namespace Protolog;
+
+class StringStreamHandler : public Handler
+{
+    protected:
+    std::ostringstream& out;
+    
+    public:
+    StringStreamHandler(std::ostringstream& out)
+    :out{out}
+    {
+        
+    }
+    virtual void write(const LogRecord& record) override
+    {
+        out<<formatter->format_record(record)<<std::endl;
+    }
+};
 
 TEST_SUITE_BEGIN("Utilities");
 
@@ -29,21 +45,7 @@ TEST_CASE("formatter_string")
     CHECK(formatter_string("%c %d %e %f %i %o %s %u %x %s %5d %8.4f", 'a', -2, 3e10, 2.1, 2, 5, "Hello", 3, 16, "SSS", 41, 12.123) == "a -2 3.000000e+10 2.100000 2 5 Hello 3 10 SSS    41  12.1230");
 }
 
-TEST_CASE("dir_exists")
-{
-    std::filesystem::path path = "/";
-    CHECK(dir_exists(path, "etc") == true);
-    CHECK(dir_exists(path, "bin") == true);
-    CHECK(dir_exists(path, "lib") == true);
-    CHECK(dir_exists(path, "dev") == true);
-    CHECK(dir_exists(path, "tmp") == true);
-    CHECK(dir_exists(path, "Invisible") == false);
-    CHECK(dir_exists(path, "IamNotDirectory") == false);
-    CHECK(dir_exists(path, "DontExist") == false);
-}
-
 TEST_SUITE_END();
-
 
 TEST_SUITE_BEGIN("Severity");
 
@@ -167,7 +169,7 @@ TEST_CASE("LogRecord")
 
 TEST_CASE("Logger Filter")
 {
-    Protolog::Logger& logger = Protolog::Logger::getInstance();
+    Protolog::Logger& logger = Protolog::SyncLogger::getInstance();
     std::ostringstream oss;
     std::unique_ptr<Formatter> fmtr = std::make_unique<SimpleFormatter>();
     std::unique_ptr<Handler> handler = std::make_unique<StringStreamHandler>(oss);
@@ -255,7 +257,7 @@ TEST_CASE("ConcurrentQueue")
 
 TEST_CASE("AsyncLogger")
 {
-    Protolog::Logger& logger = Protolog::getLogger();
+    Protolog::Logger& logger = Protolog::getAsyncLogger();
     std::ostringstream oss;
     std::unique_ptr<Formatter> fmtr = std::make_unique<MessageOnlyFormatter>();
     std::unique_ptr<Handler> handler = std::make_unique<StringStreamHandler>(oss);

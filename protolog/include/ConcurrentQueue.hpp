@@ -45,43 +45,43 @@ namespace Protolog
 	        data_container.pop();
 	    }
 
-	    std::shared_ptr<T> wait_and_pop()
-	    {
-	        std::unique_lock<std::mutex> lock{mut};
-	        cond_var.wait(lock,[this]
+		std::shared_ptr<T> wait_and_pop()
+		{
+			std::unique_lock<std::mutex> lock{mut};
+			cond_var.wait(lock,[this]
 			{
 				return !data_container.empty();
 			});
-	        std::shared_ptr<T> res(std::make_shared<T>(data_container.front()));
-	        data_container.pop();
-	        return res;
-	    }
+			std::shared_ptr<T> res(std::make_shared<T>(data_container.front()));
+			data_container.pop();
+			return res;
+		}
 
-	    bool try_pop(T& value)
-	    {
-	        std::lock_guard<std::mutex> lock{mut};
-	        if(data_container.empty())
-	            return false;
-	        value = data_container.front();
-	        data_container.pop();
-	        return true;
-	    }
+		bool try_pop(T& value)
+		{
+			std::lock_guard<std::mutex> lock{mut};
+			if(data_container.empty())
+				return false;
+			value = data_container.front();
+			data_container.pop();
+			return true;
+		}
 
 	    std::shared_ptr<T> try_pop()
-	    {
-	        std::lock_guard<std::mutex> lock{mut};
-	        if(data_container.empty())
-	            return std::shared_ptr<T>();
-	        std::shared_ptr<T> res(std::make_shared<T>(data_container.front()));
-	        data_container.pop();
-	        return res;
-	    }
+		{
+			std::lock_guard<std::mutex> lock{mut};
+			if(data_container.empty())
+				return std::shared_ptr<T>();
+			std::shared_ptr<T> res(std::make_shared<T>(data_container.front()));
+			data_container.pop();
+			return res;
+		}
 
-	    bool empty() const
-	    {
-	        std::lock_guard<std::mutex> lock{mut};
-	        return data_container.empty();
-	    }
+		bool empty() const
+		{
+			std::lock_guard<std::mutex> lock{mut};
+			return data_container.empty();
+		}
 
 		size_t size() const
 		{

@@ -9,6 +9,7 @@
 #include <FileHandler.hpp>
 #include <ColoredOstreamHandler.hpp>
 #include <RollingFileHandler.hpp>
+#define PROTOLOG_USE_ASYNC
 #include <Protolog.hpp>
 
 using namespace Protolog;
@@ -78,7 +79,7 @@ void benchmark_detailed()
 void customizible_rotating_init()
 {
     Protolog::Logger& logger = Protolog::getLogger();
-    auto ptr = std::make_unique<RollingFileHandler>("log.txt", 131072);
+    auto ptr = std::make_unique<RollingFileHandler>("log.txt", "/home/farididdin/LogArchive/", 131072);
     auto fmtr = std::make_unique<CustomizibleFormatter>("[Timestamp: %Timestamp%] [Thread ID: %ThreadID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] Message: %Message%",
     "%b %d %Y %I:%M:%S AM");
     ptr->setFormatter(std::move(fmtr));
@@ -90,14 +91,14 @@ void benchmark_customizible_rotating()
     //customizible_rotating_init();
     for(int i = 0; i<10000; ++i)
     {
-        LOG_DEBUG(std::to_string(i));
+        LOG_DEBUG_F("Message#{2}: I'm gonna {1} him an offer he can't {0}.", "refuse", "make", i);
     }
 }
 
 void simple_rotating_init()
 {
     Protolog::Logger& logger = Protolog::getLogger();
-    auto ptr = std::make_unique<RollingFileHandler>("log.txt", 131072);
+    auto ptr = std::make_unique<RollingFileHandler>("log.txt", "/home/farididdin/LogArchive/", 131072);
     auto fmtr = std::make_unique<SimpleFormatter>();
     ptr->setFormatter(std::move(fmtr));
     logger.addHandler(std::move(ptr));
@@ -115,7 +116,7 @@ void benchmark_simple_rotating()
 void detailed_rotating_init()
 {
     Protolog::Logger& logger = Protolog::getLogger();
-    auto ptr = std::make_unique<RollingFileHandler>("log.txt", 131072);
+    auto ptr = std::make_unique<RollingFileHandler>("log.txt", "/home/farididdin/LogArchive/", 131072);
     auto fmtr = std::make_unique<DetailedFormatter>();
     ptr->setFormatter(std::move(fmtr));
     logger.addHandler(std::move(ptr));
@@ -149,21 +150,14 @@ void thread_logging()
     t2.join();
     t3.join();
     t4.join();
-
-    //benchmark_customizible_rotating();
-    //benchmark_customizible_rotating();
-    //benchmark_customizible_rotating();
-    //benchmark_customizible_rotating();
 }
 
 int main()
 {
-    Protolog::Logger& logger = Protolog::Logger::getInstance();
+    Protolog::Logger& logger = Protolog::SyncLogger::getInstance();
     int64_t elapsed;
 
     measure(thread_logging, "thread logging with simple formatting of 40000 messages");
-    std::cout<<std::endl;
-
 /*
     elapsed = measure(benchmark_simple, "logging with simple formatting of 10000 messages");
     std::cout<<" -> "<<mps(elapsed)<<" messages/sec"<<std::endl;

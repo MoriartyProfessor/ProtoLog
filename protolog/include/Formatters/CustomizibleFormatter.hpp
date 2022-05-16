@@ -48,28 +48,32 @@ namespace Protolog
         {
             res += message;
         }
-        virtual void append_color(const std::string& sub_form, std::string& res)
+        virtual bool append_color(const std::string& sub_form, std::string& res)
         {
             if(sub_form == "Reset")
                 reset_color(res);
-            if(sub_form == "Red")
+            else if(sub_form == "Red")
                 set_color(res, RED);
-            if(sub_form == "Green") 
+            else if(sub_form == "Green") 
                 set_color(res, GREEN);
-            if(sub_form == "Blue") 
+            else if(sub_form == "Blue") 
                 set_color(res, BLUE);
-            if(sub_form == "Magenta") 
+            else if(sub_form == "Magenta") 
                 set_color(res, MAGENTA);
-            if(sub_form == "Cyan") 
+            else if(sub_form == "Cyan") 
                 set_color(res, CYAN);
-            if(sub_form == "White") 
+            else if(sub_form == "White") 
                 set_color(res, WHITE);
-            if(sub_form == "Chartreuse") 
+            else if(sub_form == "Chartreuse") 
                 set_color(res, CHARTREUSE);
-            if(sub_form == "Purple")
+            else if(sub_form == "Purple")
                 set_color(res, PURPLE);
-            if(sub_form == "Velvet")
+            else if(sub_form == "Velvet")
                 set_color(res, VELVET);
+            else
+                return false;
+            return true;
+            
         }
         virtual void append_occurence(const std::string& sub_form, std::string& res, const LogRecord& record)
         {
@@ -93,8 +97,8 @@ namespace Protolog
                 append_severity(res, record.severity_level);
             else if(sub_form == "Message")
                 append_message(res, record.message);
-            else
-                append_color(sub_form, res);
+            else if(!append_color(sub_form, res))
+                throw std::runtime_error{"Wrong layout in CustomizibleFormatter()"};
         }
         public:
         virtual std::string format_record(const LogRecord& record)

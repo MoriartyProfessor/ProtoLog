@@ -1,6 +1,7 @@
 #ifndef PROTOLOG_HPP
 #define PROTOLOG_HPP
 
+#include <SyncLogger.hpp>
 #include <AsyncLogger.hpp>
 
 #ifdef __GNUG__
@@ -20,7 +21,6 @@
 
 #define LOG_RECORD(severity, message) Protolog::LogRecord(Protolog::Severity::severity, __FILE__, __LOG_FUNC__, __LINE__, message)
 #define LOG_RECORD_F(severity, format, ...) log_recordf(Protolog::Severity::severity, __FILE__, __LOG_FUNC__, __LINE__, format, __VA_ARGS__)
-#define LOG_RECORD_VARIABLE(variable) log_recordf(Protolog::Severity::Info, __FILE__, __LOG_FUNC__, __LINE__, "%s == %d", #variable, variable)
 
 #define LOG_RECORD_TRACE(message) LOG_RECORD(Trace, message)
 #define LOG_RECORD_DEBUG(message) LOG_RECORD(Debug, message)
@@ -80,9 +80,21 @@
 
 namespace Protolog
 {
-    Logger& getLogger()
+    Logger& getSyncLogger()
+    {
+        return SyncLogger::getInstance();
+    }
+    Logger& getAsyncLogger()
     {
         return AsyncLogger::getInstance();
+    }
+    Logger& getLogger()
+    {
+        #ifdef PROTOLOG_USE_ASYNC
+            return getAsyncLogger();
+        #else
+            return getSyncLogger();
+        #endif
     }
 }
 

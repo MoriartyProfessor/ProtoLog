@@ -94,19 +94,6 @@ namespace Protolog
 		return dir_path.string() + filename;
     }
 
-	bool dir_exists(const std::filesystem::path& dir_path, const std::string& filename)
-    {
-        for (const auto& e : std::filesystem::directory_iterator(dir_path)) 
-        {
-            if(filename == e.path().filename())
-            {
-                std::filesystem::file_status stat = std::filesystem::status(e.path());
-                return std::filesystem::is_directory(stat);
-            }
-        }
-        return false;
-    }
-
 	template<typename ... Types>
 	std::string formatter_string(const std::string& format, Types... args)
 	{

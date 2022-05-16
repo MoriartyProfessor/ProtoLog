@@ -13,16 +13,8 @@ namespace Protolog
         uint max_size;
         uint max_files;
         std::string arch_base;
-        inline static std::filesystem::path arch_dir{"./archive/"};
+        std::filesystem::path arch_dir;
 
-        void init_arch_base()
-        {
-            std::size_t dot_pos = filename.find(".");
-            if(dot_pos!=std::string::npos)
-                arch_base = filename.substr(0, dot_pos);
-            else
-                arch_base = filename;
-        }
         std::vector<std::string> get_arch_names()
         {
             std::vector<std::string> arch_names;
@@ -53,14 +45,9 @@ namespace Protolog
 
         void move_to_archive(const std::string& arch_name)
         {
-            std::ofstream n_archlog{path_cat(arch_dir, arch_name)};
-            std::ifstream fin{filename};
-            std::string line;
-            while(std::getline(fin, line))
-            {
-                n_archlog << line << "\n";
-            }
-            std::filesystem::resize_file(filename, 0);
+            fout.close();
+            rename(filename.c_str(), path_cat(arch_dir, arch_name).c_str());
+            fout.open(filename, std::ios::out);
         }
 
         void rotate()
@@ -83,21 +70,18 @@ namespace Protolog
 
         void archive()
         {
-            std::filesystem::path curr_path{"./"};
-            if(!dir_exists(curr_path, "archive"))
-            {
+            if(!std::filesystem::exists(arch_dir))
                 std::filesystem::create_directory(arch_dir);
-            }
             rotate();
         }
 
         public:
-        RollingFileHandler(const std::string& filename, uint max_size = 0, uint max_file = 128)
-        :FileHandler{filename, std::ios::app}, max_size{max_size},  max_files{max_file}
+        RollingFileHandler(const std::string& filename, const std::string& arch_path = "./archive/", uint max_size = 0, uint max_file = 128)
+        :FileHandler{filename, std::ios::app}, arch_dir{arch_path}, max_size{max_size},  max_files{max_file}
         {
             if(max_file < 4)
                 max_file = 4;
-            init_arch_base();
+            arch_base = filename;
         }
 
         virtual void write(const LogRecord& record) override
