@@ -125,7 +125,7 @@ namespace Protolog
 	    auto before = curr_time_ms();
 	    foo(args...);
 	    auto after = curr_time_ms();
-	    std::cout<<"Elapsed time when "<<f_name<<": "<<after - before<<" ms";
+	    std::cout<<f_name<<": "<<after - before<<" ms";
 		return after - before;
 	}
 }

@@ -9,142 +9,127 @@
 #include <FileHandler.hpp>
 #include <ColoredOstreamHandler.hpp>
 #include <RollingFileHandler.hpp>
-#define PROTOLOG_USE_ASYNC
 #include <Protolog.hpp>
 
 using namespace Protolog;
 using namespace std;
 
-void customizible_init()
+const int MESSAGE_AMOUNT = 10000; 
+
+Protolog::Logger* get_logger(bool logger_is_sync)
 {
-    Protolog::Logger& logger = Protolog::getLogger();
+    if(logger_is_sync)
+        return &Protolog::SyncLogger::getInstance();
+    else
+        return &Protolog::AsyncLogger::getInstance();
+}
+
+void customizible_init(bool logger_is_sync = true)
+{
+    Protolog::Logger* logger = get_logger(logger_is_sync);
     auto ptr = std::make_unique<FileHandler>("log.txt", std::ios::trunc);
     auto fmtr = std::make_unique<CustomizibleFormatter>("[Timestamp: %Timestamp%] [Thread ID: %ThreadID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] Message: %Message%",
     "%b %d %Y %I:%M:%S AM");
     ptr->setFormatter(std::move(fmtr));
-    logger.addHandler(std::move(ptr));
+    logger->addHandler(std::move(ptr));
 }
 
-void benchmark_customizible()
+void simple_init(bool logger_is_sync = true)
 {
-    customizible_init();
-    for(int i = 0; i<10000; ++i)
-    {
-        LOG_DEBUG(std::to_string(i));
-    }
-}
-
-void simple_init()
-{
-    Protolog::Logger& logger = Protolog::getLogger();
+    Protolog::Logger* logger = get_logger(logger_is_sync);
     auto ptr = std::make_unique<FileHandler>("log.txt", std::ios::trunc);
     auto fmtr = std::make_unique<SimpleFormatter>();
     ptr->setFormatter(std::move(fmtr));
-    logger.addHandler(std::move(ptr));
-    
-    auto ptr1 = std::make_unique<ColoredOstreamHandler>();
-    auto fmtr1 = std::make_unique<SimpleFormatter>();
-    ptr1->setFormatter(std::move(fmtr1));
-    logger.addHandler(std::move(ptr1));
+    logger->addHandler(std::move(ptr));
 }
 
-void benchmark_simple()
+void detailed_init(bool logger_is_sync = true)
 {
-    simple_init();
-    Protolog::Logger& logger = Protolog::getLogger();
-    for(int i = 0; i<10000; ++i)
-    {
-        logger.log(LOG_RECORD_DEBUG(std::to_string(i)));
-    }
-}
-
-void detailed_init()
-{
-    Protolog::Logger& logger = Protolog::getLogger();
+    Protolog::Logger* logger = get_logger(logger_is_sync);
     auto ptr = std::make_unique<FileHandler>("log.txt", std::ios::trunc);
     auto fmtr = std::make_unique<DetailedFormatter>();
     ptr->setFormatter(std::move(fmtr));
-    logger.addHandler(std::move(ptr));
+    logger->addHandler(std::move(ptr));
 }
 
-void benchmark_detailed()
+void customizible_rotating_init(bool logger_is_sync = true)
 {
-    detailed_init();
-    for(int i = 0; i<10000; ++i)
-    {
-        LOG_DEBUG(std::to_string(i));
-    }
-}
-
-void customizible_rotating_init()
-{
-    Protolog::Logger& logger = Protolog::getLogger();
+    Protolog::Logger* logger = get_logger(logger_is_sync);
     auto ptr = std::make_unique<RollingFileHandler>("log.txt", "/home/farididdin/LogArchive/", 131072);
     auto fmtr = std::make_unique<CustomizibleFormatter>("[Timestamp: %Timestamp%] [Thread ID: %ThreadID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] Message: %Message%",
     "%b %d %Y %I:%M:%S AM");
     ptr->setFormatter(std::move(fmtr));
-    logger.addHandler(std::move(ptr));
+    logger->addHandler(std::move(ptr));
 }
 
-void benchmark_customizible_rotating()
+void simple_rotating_init(bool logger_is_sync = true)
 {
-    //customizible_rotating_init();
-    for(int i = 0; i<10000; ++i)
-    {
-        LOG_DEBUG("Message#{2}: I'm gonna {1} him an offer he can't {0}.", "refuse", "make", i);
-    }
-}
-
-void simple_rotating_init()
-{
-    Protolog::Logger& logger = Protolog::getLogger();
+    Protolog::Logger* logger = get_logger(logger_is_sync);
     auto ptr = std::make_unique<RollingFileHandler>("log.txt", "/home/farididdin/LogArchive/", 131072);
     auto fmtr = std::make_unique<SimpleFormatter>();
     ptr->setFormatter(std::move(fmtr));
-    logger.addHandler(std::move(ptr));
+    logger->addHandler(std::move(ptr));
 }
 
-void benchmark_simple_rotating()
+void detailed_rotating_init(bool logger_is_sync = true)
 {
-    simple_rotating_init();
-    for(int i = 0; i<10000; ++i)
-    {
-        LOG_DEBUG(std::to_string(i));
-    }
-}
-
-void detailed_rotating_init()
-{
-    Protolog::Logger& logger = Protolog::getLogger();
+    Protolog::Logger* logger = get_logger(logger_is_sync);
     auto ptr = std::make_unique<RollingFileHandler>("log.txt", "/home/farididdin/LogArchive/", 131072);
     auto fmtr = std::make_unique<DetailedFormatter>();
     ptr->setFormatter(std::move(fmtr));
-    logger.addHandler(std::move(ptr));
+    logger->addHandler(std::move(ptr));
 }
 
-void benchmark_detailed_rotating()
+void benchmark_short(bool logger_is_sync = true)
 {
-    detailed_rotating_init();
-    for(int i = 0; i<10000; ++i)
+    Protolog::Logger* logger = get_logger(logger_is_sync);
+    for(int i = 0; i<MESSAGE_AMOUNT; ++i)
     {
-        LOG_DEBUG(std::to_string(i));
+        logger->log(LOG_RECORD_DEBUG("{}", i));
     }
 }
 
-int mps(int64_t elapsed)
+void benchmark_long(bool logger_is_sync = true)
+{
+    Protolog::Logger* logger = get_logger(logger_is_sync);
+    for(int i = 0; i<MESSAGE_AMOUNT; ++i)
+    {
+        logger->log(LOG_RECORD_DEBUG("Let your {4} be {2} and {3} as {1}, and when you {6}, {7} like a {5}. - {0}", "Sun Tzu", "night", "dark", "impenetrable", "plans", "thunderbolt", "move", "fall"));
+    }
+}
+
+void init_and_bench(void (*init)(bool), void (*bench)(bool), bool logger_is_sync = true)
+{
+    init(logger_is_sync);
+    bench(logger_is_sync);
+}
+
+int mps(int64_t elapsed, int amount)
 {
     double el_s = elapsed/1000.0;
-    double spm = el_s/10000.0;
+    double spm = el_s/(double)amount;
     return (1.0/spm);
 }
 
-void thread_logging()
+void thread_logging_short(bool logger_is_sync = true)
 {
-    detailed_rotating_init();
-    std::thread t1(benchmark_customizible_rotating);
-    std::thread t2(benchmark_customizible_rotating);
-    std::thread t3(benchmark_customizible_rotating);
-    std::thread t4(benchmark_customizible_rotating);
+    std::thread t1(benchmark_short, logger_is_sync);
+    std::thread t2(benchmark_short, logger_is_sync);
+    std::thread t3(benchmark_short, logger_is_sync);
+    std::thread t4(benchmark_short, logger_is_sync);
+    
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+}
+
+void thread_logging_long(bool logger_is_sync = true)
+{
+    std::thread t1(benchmark_long, logger_is_sync);
+    std::thread t2(benchmark_long, logger_is_sync);
+    std::thread t3(benchmark_long, logger_is_sync);
+    std::thread t4(benchmark_long, logger_is_sync);
     
     t1.join();
     t2.join();
@@ -157,32 +142,69 @@ int main()
     Protolog::Logger& logger = Protolog::SyncLogger::getInstance();
     int64_t elapsed;
 
-    measure(thread_logging, "thread logging with simple formatting of 40000 messages");
-/*
-    elapsed = measure(benchmark_simple, "logging with simple formatting of 10000 messages");
-    std::cout<<" -> "<<mps(elapsed)<<" messages/sec"<<std::endl;
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Simple] [Message: Short] [Amount: 10000] [Appender: File] ", simple_init, benchmark_short, true);
+    std::cout<<" -> "<<mps(elapsed, MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
     logger.clear();
 
-    elapsed = measure(benchmark_detailed, "logging with detailed formatting of 10000 messages");
-    std::cout<<" -> "<<mps(elapsed)<<" messages/sec"<<std::endl;
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Detailed] [Message: Short] [Amount: 10000] [Appender: File] ", detailed_init, benchmark_short, true);
+    std::cout<<" -> "<<mps(elapsed, MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
     logger.clear();
     
-    elapsed = measure(benchmark_customizible, "logging with customizible formatting of 10000 messages");
-    std::cout<<" -> "<<mps(elapsed)<<" messages/sec"<<std::endl;
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Customizible] [Message: Short] [Amount: 10000] [Appender: File] ", customizible_init, benchmark_short, true);
+    std::cout<<" -> "<<mps(elapsed, MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
     logger.clear();
 
-    elapsed = measure(benchmark_simple_rotating, "logging with simple formatting of 10000 messages with file rotation of max size 128 KB");
-    std::cout<<" -> "<<mps(elapsed)<<" messages/sec"<<std::endl;
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Simple] [Message: Short] [Amount: 10000] [Appender: Rolling File(128 KB)] ", simple_rotating_init, benchmark_short, true);
+    std::cout<<" -> "<<mps(elapsed, MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
     logger.clear();
 
-    elapsed = measure(benchmark_detailed_rotating, "logging with detailed formatting of 10000 messages with file rotation of max size 128 KB");
-    std::cout<<" -> "<<mps(elapsed)<<" messages/sec"<<std::endl;
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Detailed] [Message: Short] [Amount: 10000] [Appender: Rolling File(128 KB)] ", detailed_rotating_init, benchmark_short, true);
+    std::cout<<" -> "<<mps(elapsed, MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
     logger.clear();
 
-    elapsed = measure(benchmark_customizible_rotating, "logging with customizible formatting of 10000 messages with file rotation of max size 128 KB");
-    std::cout<<" -> "<<mps(elapsed)<<" messages/sec"<<std::endl;
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Customizible] [Message: Short] [Amount: 10000] [Appender: Rolling File(128 KB)] ", customizible_rotating_init, benchmark_short, true);
+    std::cout<<" -> "<<mps(elapsed, MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
     logger.clear();
 
-*/
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Detailed] [Message: Short] [Amount: 40000] [Appender: File] [Execution: Threaded (4 threads)]", detailed_init, thread_logging_short, true);
+    std::cout<<" -> "<<mps(elapsed, 4*MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
+    logger.clear();
+    
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Simple] [Message: Long] [Amount: 10000] [Appender: File] ", simple_init, benchmark_long, true);
+    std::cout<<" -> "<<mps(elapsed, MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
+    logger.clear();
+
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Detailed] [Message: Long] [Amount: 10000] [Appender: File] ", detailed_init, benchmark_long, true);
+    std::cout<<" -> "<<mps(elapsed, MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
+    logger.clear();
+    
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Customizible] [Message: Long] [Amount: 10000] [Appender: File] ", customizible_init, benchmark_long, true);
+    std::cout<<" -> "<<mps(elapsed, MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
+    logger.clear();
+
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Simple] [Message: Long] [Amount: 10000] [Appender: Rolling File(128 KB)] ", simple_rotating_init, benchmark_long, true);
+    std::cout<<" -> "<<mps(elapsed, MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
+    logger.clear();
+
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Detailed] [Message: Long] [Amount: 10000] [Appender: Rolling File(128 KB)] ", detailed_rotating_init, benchmark_long, true);
+    std::cout<<" -> "<<mps(elapsed, MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
+    logger.clear();
+
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Customizible] [Message: Long] [Amount: 10000] [Appender: Rolling File(128 KB)] ", customizible_rotating_init, benchmark_long, true);
+    std::cout<<" -> "<<mps(elapsed, MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
+    logger.clear();
+
+    elapsed = measure(init_and_bench, "[Logger: Synchronous] [Formatting: Detailed] [Message: Long] [Amount: 40000] [Appender: File] [Execution: Threaded (4 threads)]", detailed_init, thread_logging_long, true);
+    std::cout<<" -> "<<mps(elapsed, 4*MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
+    logger.clear();
+
+    elapsed = measure(init_and_bench, "[Logger: Asynchronous] [Formatting: Detailed] [Message: Long] [Amount: 40000] [Appender: File] [Execution: Threaded (4 threads)]", detailed_init, thread_logging_short, false);
+    std::cout<<" -> "<<mps(elapsed, 4*MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
+    logger.clear();
+
+    elapsed = measure(init_and_bench, "[Logger: Asynchronous] [Formatting: Detailed] [Message: Long] [Amount: 40000] [Appender: File] [Execution: Threaded (4 threads)]", detailed_init, thread_logging_long, false);
+    std::cout<<" -> "<<mps(elapsed, 4*MESSAGE_AMOUNT)<<" messages/sec"<<std::endl;
+    logger.clear();
+
     return 0;
 }
