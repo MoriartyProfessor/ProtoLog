@@ -91,7 +91,7 @@ void benchmark_customizible_rotating()
     //customizible_rotating_init();
     for(int i = 0; i<10000; ++i)
     {
-        LOG_DEBUG_F("Message#{2}: I'm gonna {1} him an offer he can't {0}.", "refuse", "make", i);
+        LOG_DEBUG("Message#{2}: I'm gonna {1} him an offer he can't {0}.", "refuse", "make", i);
     }
 }
 

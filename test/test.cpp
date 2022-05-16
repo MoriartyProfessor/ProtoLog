@@ -76,7 +76,7 @@ TEST_SUITE_BEGIN("Formatters");
 TEST_CASE("Message-only Formatter")
 {
     MessageOnlyFormatter formatter;
-    CHECK(formatter.format_record(LOG_RECORD_WARNING_F("I will be {}", "back")) == "[Warning] Message: I will be back");
+    CHECK(formatter.format_record(LOG_RECORD_WARNING("I will be {}", "back")) == "[Warning] Message: I will be back");
     CHECK(formatter.format_record(LOG_RECORD_INFO("I am vengeance, I am the Night")) == "[Info] Message: I am vengeance, I am the Night");
     CHECK(formatter.format_record(LOG_RECORD_DEBUG("Dumbledore asked calmly")) == "[Debug] Message: Dumbledore asked calmly");
     CHECK(formatter.format_record(LOG_RECORD_FATAL("Hardware: the part of a computer that you can kick.")) == "[Fatal] Message: Hardware: the part of a computer that you can kick.");
@@ -161,7 +161,7 @@ TEST_CASE("LogRecord")
     CHECK(rec.severity_level == Severity::Info);
     CHECK(rec.filename == "test.cpp");
     CHECK(rec.message == "Message");
-    rec = LOG_RECORD_F(Debug, "{1} Ring to rule them all, {0} Ring to find them, One Ring to bring them all and in the darkness bind them.", 1, "One");
+    rec = LOG_RECORD(Debug, "{1} Ring to rule them all, {0} Ring to find them, One Ring to bring them all and in the darkness bind them.", 1, "One");
     CHECK(rec.severity_level == Severity::Debug);
     CHECK(rec.filename == "test.cpp");
     CHECK(rec.message == "One Ring to rule them all, 1 Ring to find them, One Ring to bring them all and in the darkness bind them.");
@@ -214,7 +214,7 @@ TEST_CASE("LogRecord")
     CHECK(rec.severity_level == Severity::Info);
     CHECK(rec.filename == "test.cpp");
     CHECK(rec.message == "Message");
-    rec = LOG_RECORD_F(Debug, "{1} Ring to rule them all, {0} Ring to find them, One Ring to bring them all and in the darkness bind them.", 1, "One");
+    rec = LOG_RECORD(Debug, "{1} Ring to rule them all, {0} Ring to find them, One Ring to bring them all and in the darkness bind them.", 1, "One");
     CHECK(rec.severity_level == Severity::Debug);
     CHECK(rec.filename == "test.cpp");
     CHECK(rec.message == "One Ring to rule them all, 1 Ring to find them, One Ring to bring them all and in the darkness bind them.");

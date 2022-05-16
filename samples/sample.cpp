@@ -50,13 +50,13 @@ void log_messages()
     
     LOG_FATAL("Last message before catastrophe");
     
-    LOG_FATAL_F("Message: this is {}st parametrized {}", 1, "message");
+    LOG_FATAL("Message: this is {}st parametrized {}", 1, "message");
     
     LOG_TRACE("Hello World!");
     
-    LOG_TRACE_F("{} {}", "parametrizing", "logging");
+    LOG_TRACE("{} {}", "parametrizing", "logging");
     
-    LOG_INFO_F("Logger Macro {}", "parametrized");
+    LOG_INFO("Logger Macro {}", "parametrized");
 }
 
 void log_many(int s)
@@ -64,13 +64,13 @@ void log_many(int s)
     for(int i = 1; i<100; ++i)
     {
     	if(s == 1)
-        	LOG_WARNING_F("Message {1}: {0}", i, i);
+        	LOG_WARNING("Message {1}: {0}", i, i);
         if(s == 2)
-        	LOG_INFO_F("Message {1}: {0}", i, i);
+        	LOG_INFO("Message {1}: {0}", i, i);
         if(s == 3)
-        	LOG_DEBUG_F("Message {1}: {0}", i, i);
+        	LOG_DEBUG("Message {1}: {0}", i, i);
         if(s == 4)
-        	LOG_TRACE_F("Message {1}: {0}", i, i);
+        	LOG_TRACE("Message {1}: {0}", i, i);
     }
 }
 
