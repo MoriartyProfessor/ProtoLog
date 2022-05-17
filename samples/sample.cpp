@@ -2,6 +2,7 @@
 #include <vector>
 #include <thread>
 #include <map>
+#include <limits>
 
 #include <ConcurrentQueue.hpp>
 
@@ -19,7 +20,8 @@ using namespace Protolog;
 void config_logger_customizible()
 {
     Protolog::Logger& logger = Protolog::getLogger();
-    std::unique_ptr<Formatter> fmtr = std::make_unique<CustomizibleFormatter>("[Timestamp: %Timestamp%] [Thread ID: %ThreadID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] %Message%", "%d:%m:%Y %H:%M:%S %p");
+    CustomiziblePattern pat;
+    std::unique_ptr<Formatter> fmtr = std::make_unique<CustomizibleFormatter>(pat);
     std::unique_ptr<Handler> handler = std::make_unique<ColoredOstreamHandler>();
     handler->setFormatter(std::move(fmtr));
     logger.addHandler(std::move(handler));
@@ -88,14 +90,9 @@ void threaded_logging()
 }
 
 int main()
-{   
-    config_logger_simple();
-    
+{
+    config_logger_customizible();
     log_messages();
-
-    //config_logger_customizible();
-    //log_messages();
-    //logger.clear();
 
     return 0;
 }

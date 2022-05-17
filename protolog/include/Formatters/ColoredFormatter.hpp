@@ -112,9 +112,9 @@ namespace Protolog
             log_format_layout = "[Timestamp: %Timestamp%] [Host: %Hostname%] [Thread ID: %ThreadID%] [Process ID: %ProcessID%] [User ID: %UserID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] %Message%";
             date_format_layout = "%d-%m-%Y %H:%M:%S %p";
         }
-        ColoredFormatter(const std::string& log_format_layout, const std::string& date_format_layout)
+        ColoredFormatter(CustomiziblePattern pat, const std::string& date_format_layout = "%d-%m-%Y %H:%M:%S %p")
         {
-            this->log_format_layout = log_format_layout;
+            this->log_format_layout = pat.get_layout();
             this->date_format_layout = date_format_layout;
         }
     };

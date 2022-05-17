@@ -28,7 +28,7 @@ void customizible_init(bool logger_is_sync = true)
 {
     Protolog::Logger* logger = get_logger(logger_is_sync);
     auto ptr = std::make_unique<FileHandler>("log.txt", std::ios::trunc);
-    auto fmtr = std::make_unique<CustomizibleFormatter>("[Timestamp: %Timestamp%] [Thread ID: %ThreadID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] Message: %Message%",
+    auto fmtr = std::make_unique<CustomizibleFormatter>(CustomiziblePattern{FormatShift::log_time, FormatShift::pid, FormatShift::funcname, FormatShift::line, FormatShift::filename, FormatShift::severity_level, FormatShift::message},
     "%b %d %Y %I:%M:%S AM");
     ptr->setFormatter(std::move(fmtr));
     logger->addHandler(std::move(ptr));
@@ -55,8 +55,8 @@ void detailed_init(bool logger_is_sync = true)
 void customizible_rotating_init(bool logger_is_sync = true)
 {
     Protolog::Logger* logger = get_logger(logger_is_sync);
-    auto ptr = std::make_unique<RollingFileHandler>("log.txt", "/home/farididdin/LogArchive/", 131072);
-    auto fmtr = std::make_unique<CustomizibleFormatter>("[Timestamp: %Timestamp%] [Thread ID: %ThreadID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] Message: %Message%",
+    auto ptr = std::make_unique<RollingFileHandler>("log.txt", "./LogArchive/", 131072);
+    auto fmtr = std::make_unique<CustomizibleFormatter>(CustomiziblePattern{FormatShift::log_time, FormatShift::pid, FormatShift::funcname, FormatShift::line, FormatShift::filename, FormatShift::severity_level, FormatShift::message},
     "%b %d %Y %I:%M:%S AM");
     ptr->setFormatter(std::move(fmtr));
     logger->addHandler(std::move(ptr));
@@ -65,7 +65,7 @@ void customizible_rotating_init(bool logger_is_sync = true)
 void simple_rotating_init(bool logger_is_sync = true)
 {
     Protolog::Logger* logger = get_logger(logger_is_sync);
-    auto ptr = std::make_unique<RollingFileHandler>("log.txt", "/home/farididdin/LogArchive/", 131072);
+    auto ptr = std::make_unique<RollingFileHandler>("log.txt", "./LogArchive/", 131072);
     auto fmtr = std::make_unique<SimpleFormatter>();
     ptr->setFormatter(std::move(fmtr));
     logger->addHandler(std::move(ptr));
@@ -74,7 +74,7 @@ void simple_rotating_init(bool logger_is_sync = true)
 void detailed_rotating_init(bool logger_is_sync = true)
 {
     Protolog::Logger* logger = get_logger(logger_is_sync);
-    auto ptr = std::make_unique<RollingFileHandler>("log.txt", "/home/farididdin/LogArchive/", 131072);
+    auto ptr = std::make_unique<RollingFileHandler>("log.txt", "./LogArchive/", 131072);
     auto fmtr = std::make_unique<DetailedFormatter>();
     ptr->setFormatter(std::move(fmtr));
     logger->addHandler(std::move(ptr));

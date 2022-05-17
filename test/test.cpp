@@ -88,24 +88,24 @@ TEST_CASE("Message-only Formatter")
 
 TEST_CASE("Customizible Formatter")
 {
-    CustomizibleFormatter formatter{"[Process ID: %ProcessID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] Message: %Message%",
+    CustomizibleFormatter formatter{{FormatShift::pid, FormatShift::funcname, FormatShift::line, FormatShift::filename, FormatShift::severity_level, FormatShift::message},
     "%b %d %Y %I:%M:%S"};
     LogRecord record = LOG_RECORD_WARNING("I will be back");
-    CHECK(formatter.format_record(record) == formatter_string("[Process ID: %d] [Function: %s] [Line of Code: %s:%d] [Severity: %s] Message: %s", record.pid, record.funcname.data(), record.filename.data(), record.line, sever_to_str(record.severity_level).data(), record.message.data()));
+    CHECK(formatter.format_record(record) == formatter_string("[Process ID: %d] [Function: %s] [Line of Code: %s:%d] [Severity: %s] %s", record.pid, record.funcname.data(), record.filename.data(), record.line, sever_to_str(record.severity_level).data(), record.message.data()));
     
     record = LOG_RECORD_INFO("I am vengeance, I am the Night");
-    formatter.set_log_layout("[Host: %Hostname%] [Process ID: %ProcessID%] [Thread ID: %ThreadID%] [Severity: %Severity%] [User ID: %UserID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] %Message%");
-    CHECK(formatter.format_record(record) == formatter_string("[Host: %s] [Process ID: %d] [Thread ID: %d] [Severity: %s] [User ID: %d] [Function: %s] [Line of Code: %s:%d] %s", record.hostname.data(), record.pid, record.tid, sever_to_str(record.severity_level).data(), record.uid ,record.funcname.data(), record.filename.data(), record.line, record.message.data()));
+    formatter.set_log_layout({FormatShift::hostname, FormatShift::pid, FormatShift::tid, FormatShift::severity_level, FormatShift::funcname, FormatShift::filename, FormatShift::line, FormatShift::message});
+    CHECK(formatter.format_record(record) == formatter_string("[Host: %s] [Thread ID: %d] [Process ID: %d] [Function: %s] [Line of Code: %s:%d] [Severity: %s] %s", record.hostname.data(), record.tid, record.pid, record.funcname.data(), record.filename.data(), record.line, sever_to_str(record.severity_level).data(), record.message.data()));
     
     record = LOG_RECORD_WARNING("In War, Victory. In Peace, Vigilance. In Death, Sacrifice.");
     record.log_time = 0;
-    formatter.set_log_layout("[Severity: %Severity%] [Time: %Timestamp%] %Message%");
-    CHECK(formatter.format_record(record) == "[Severity: Warning] [Time: Jan 01 1970 06:00:00] In War, Victory. In Peace, Vigilance. In Death, Sacrifice.");
+    formatter.set_log_layout({FormatShift::severity_level, FormatShift::log_time, FormatShift::message});
+    CHECK(formatter.format_record(record) == "[Timestamp: Jan 01 1970 06:00:00] [Severity: Warning] In War, Victory. In Peace, Vigilance. In Death, Sacrifice.");
 
     record.log_time = 8192;
-    formatter.set_log_layout("{Severity: %Severity%} {Time: %Timestamp%} Message: %Message%");
+    formatter.set_log_layout(CustomiziblePattern{{FormatShift::severity_level, FormatShift::log_time, FormatShift::message}, CustomiziblePattern::Delimiter::Curly});
     formatter.set_date_layout("%F %T %p");
-    CHECK(formatter.format_record(record) == "{Severity: Warning} {Time: 1970-01-01 08:16:32 AM} Message: In War, Victory. In Peace, Vigilance. In Death, Sacrifice."); 
+    CHECK(formatter.format_record(record) == "{Timestamp: 1970-01-01 08:16:32 AM} {Severity: Warning} In War, Victory. In Peace, Vigilance. In Death, Sacrifice."); 
 }
 
 TEST_CASE("Simple Formatter")
@@ -140,15 +140,15 @@ TEST_CASE("Detailed Formatter")
 
 TEST_CASE("Colored Formatter")
 {
-    ColoredFormatter formatter{"[Process ID: %ProcessID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] Message: %Message%",
+    ColoredFormatter formatter{{FormatShift::pid, FormatShift::funcname, FormatShift::filename, FormatShift::line, FormatShift::severity_level, FormatShift::message},
     "%b %d %Y %I:%M:%S"};
     LogRecord record = LOG_RECORD_WARNING("I will be back");
-    CHECK(formatter.format_record(record) == formatter_string("\033[0m[Process ID: \033[32m%d\033[0m] [Function: \033[38;5;154m%s\033[0m] [Line of Code: \033[36m%s\033[0m:\033[38;5;126m%d\033[0m] [Severity: \033[34mWarning\033[0m] Message: \033[37mI will be back\033[0m", 
+    CHECK(formatter.format_record(record) == formatter_string("\033[0m[Process ID: \033[32m%d\033[0m] [Function: \033[38;5;154m%s\033[0m] [Line of Code: \033[36m%s\033[0m:\033[38;5;126m%d\033[0m] [Severity: \033[34mWarning\033[0m] \033[37mI will be back\033[0m", 
     record.pid, record.funcname.data(), record.filename.data(), record.line));
     
     record = LOG_RECORD_INFO("I am vengeance, I am the Night");
-    formatter.set_log_layout("[Severity: %Severity%] [File: %Filename%] %Message%");
-    CHECK(formatter.format_record(record) == "\033[0m[Severity: \033[34mInfo\033[0m] [File: \033[36mtest.cpp\033[0m] \033[37mI am vengeance, I am the Night\033[0m");
+    formatter.set_log_layout({FormatShift::severity_level, FormatShift::message});
+    CHECK(formatter.format_record(record) == "[Severity: \033[34mInfo\033[0m] \033[37mI am vengeance, I am the Night\033[0m");
 }
 
 TEST_SUITE_END();

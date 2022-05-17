@@ -19,7 +19,7 @@ namespace Protolog
             auto ptr1 = std::make_unique<RollingFileHandler>("log.txt", "/home/farididdin/LogArchive/", 16384);
             auto ptr2 = std::make_unique<ColoredOstreamHandler>();
             ptr2->set_color_scheme({CHARTREUSE, PURPLE, CYAN, YELLOW, RED, BOLDRED});
-            auto fmtr1 = std::make_unique<CustomizibleFormatter>("[Timestamp: %Timestamp%] [Process ID: %ProcessID%] [Function: %Function%] [Line of Code: %Filename%:%LineNumber%] [Severity: %Severity%] Message: %Message%",
+            auto fmtr1 = std::make_unique<CustomizibleFormatter>(CustomiziblePattern{FormatShift::log_time, FormatShift::pid, FormatShift::funcname, FormatShift::line, FormatShift::filename, FormatShift::severity_level, FormatShift::message},
             "%b %d %Y %I:%M:%S AM");
             auto fmtr2 = std::make_unique<DetailedFormatter>();
             ptr1->setFormatter(std::move(fmtr1));
